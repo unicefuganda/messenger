@@ -3,4 +3,4 @@
 	url = git://github.com/unicefuganda/rapidsms
 [submodule "billing_project/rapidsms_httprouter_src"]
 	path = billing_project/rapidsms_httprouter_src
-	url = git://github.com:unicefuganda/rapidsms-httprouter.git
+	url = git://github.com/unicefuganda/rapidsms-httprouter.git
