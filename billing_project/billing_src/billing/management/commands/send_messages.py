@@ -66,7 +66,7 @@ class Command(BaseCommand):
         return full_url
 
 
-    def send_backend_chunk(self, pks):
+    def send_backend_chunk(self, pks, backend_name):
         msgs = Message.objects.filter(pk__in=pks)
         try:
             url = self.build_send_url(backend_name, ' '.join(msgs.values_list('connection__identity', flat=True)), msg.text)
@@ -93,7 +93,7 @@ class Command(BaseCommand):
             for msg in to_send:
                 if backend_name != msg.backend.name:
                     # send all of the same backend
-                    self.send_backend_chunk(pks)
+                    self.send_backend_chunk(pks, backend_name)
                     # reset the loop status variables to build the next chunk of messages with the same backend
                     backend_name = msg.backend.name
                     pks = [msg.pk]
