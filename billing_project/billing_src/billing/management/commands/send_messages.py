@@ -103,35 +103,6 @@ class Command(BaseCommand, LoggerMixin):
             self.send_backend_chunk(pks, backend_name)
 
 
-    def handle_sending(self, to_process):
-        if len(to_process):
-            to_send = []
-            for outgoing_message in to_process:
-                try:
-                    # process the outgoing phases for this message
-                    url = settings.DATABASES[self.db]['CAN_SEND_URL'] % {'message_id':outgoing_message.pk}
-                    print "checking send with %s" % url
-                    response = urlopen(url, timeout=15)
-                    # if it wasn't cancelled, send it off
-                    if response.getcode() == 200:
-                        print "can send"
-                        to_send.append(outgoing_message)
-                    elif response.getcode() == 403:
-                        print "cant send"
-                        outgoing_message.status = 'C'
-                        outgoing_message.save(using=self.db)
-                except:
-                    import traceback
-                    traceback.print_exc()
-                    continue
-            try:
-                self.send_all(to_send)
-            except:
-                import traceback
-                traceback.print_exc()
-
-
-
     def handle(self, **options):
         DBS = settings.DATABASES.keys()
         DBS.remove('default') # skip the dummy
@@ -146,10 +117,10 @@ class Command(BaseCommand, LoggerMixin):
                 if to_process.count():
                     batch = to_process[0]
                     to_process = batch.messages.using(db).filter(direction='O',
-                                  status__in=['P', 'Q']).order_by('priority', 'status', 'connection__backend__name')[:CHUNK_SIZE]
+                                  status__in=['Q']).order_by('priority', 'status', 'connection__backend__name')[:CHUNK_SIZE]
                     if to_process.count():
                         print "found some messages in batch %d" % batch.pk
-                        self.handle_sending(to_process)
+                        self.send_all(to_process)
                     else:
                         print "setting batch %d to done" % batch.pk
                         batch.status = 'S'
@@ -158,8 +129,8 @@ class Command(BaseCommand, LoggerMixin):
                 else:
                     print "finding individual messages to send"
                     to_process = Message.objects.using(db).filter(direction='O',
-                                      status__in=['P', 'Q']).order_by('priority', 'status')
+                                      status__in=['Q']).order_by('priority', 'status', 'connection__backend__name')
                     if len(to_process):
                         print "sending one"
-                        self.handle_sending([to_process[0]])
+                        self.send_all([to_process[0]])
                 transaction.commit(using=db)
