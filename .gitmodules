@@ -4,3 +4,6 @@
 [submodule "billing_project/rapidsms"]
 	path = billing_project/rapidsms
 	url = git://github.com/unicefuganda/rapidsms
+[submodule "billing_project/rapidsms_ureport"]
+	path = billing_project/rapidsms_ureport
+	url = git@github.com:unicefuganda/rapidsms-ureport.git

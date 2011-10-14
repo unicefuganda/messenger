@@ -11,21 +11,7 @@ import sys, os
 filedir = os.path.dirname(__file__)
 sys.path.append(os.path.join(filedir))
 sys.path.append(os.path.join(filedir, 'rapidsms', 'lib'))
-sys.path.append(os.path.join(filedir, 'rapidsms_auth'))
-sys.path.append(os.path.join(filedir, 'rapidsms_contact'))
-sys.path.append(os.path.join(filedir, 'rapidsms_cvs'))
-sys.path.append(os.path.join(filedir, 'rapidsms_generic'))
 sys.path.append(os.path.join(filedir, 'rapidsms_httprouter_src'))
-sys.path.append(os.path.join(filedir, 'rapidsms_polls'))
-sys.path.append(os.path.join(filedir, 'rapidsms_script'))
-sys.path.append(os.path.join(filedir, 'rapidsms_uregister'))
-sys.path.append(os.path.join(filedir, 'rapidsms_ureport'))
-sys.path.append(os.path.join(filedir, 'rapidsms_xforms_src'))
-sys.path.append(os.path.join(filedir, 'rapidsms_healthmodels'))
-sys.path.append(os.path.join(filedir, 'django_eav'))
-sys.path.append(os.path.join(filedir, 'rapidsms_uganda_common'))
-sys.path.append(os.path.join(filedir, 'rapidsms_uganda_ussd'))
-sys.path.append(os.path.join(filedir, 'rapidsms_unregister'))
 
 # -------------------------------------------------------------------- #
 #                          MAIN CONFIGURATION                          #
@@ -48,7 +34,31 @@ CATEGORY_COLORS = ['#AA4643', '#4572A7', '#89A54E', '#80699B', '#3D96AE', '#DB84
 DATABASES = {
     'default': {
         'ENGINE' : 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'cvs',
+        'NAME': 'billing',
+        'USER': 'postgres',
+        'HOST': 'dbserver',
+    },
+    'status160': {
+        'ENGINE' : 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'status160',
+        'USER': 'postgres',
+        'HOST': 'dbserver',
+    },
+    'ureport': {
+        'ENGINE' : 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'ureport',
+        'USER': 'postgres',
+        'HOST': 'dbserver',
+    },
+    'emis': {
+        'ENGINE' : 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'emis',
+        'USER': 'postgres',
+        'HOST': 'dbserver',
+    },
+    'mtrack': {
+        'ENGINE' : 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'mtrack',
         'USER': 'postgres',
         'HOST': 'dbserver',
     }
