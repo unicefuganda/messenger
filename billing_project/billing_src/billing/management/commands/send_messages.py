@@ -126,6 +126,7 @@ class Command(BaseCommand):
 
     def handle(self, **options):
         DBS = settings.DATABASES.keys()
+        DBS.pop('default') # skip the dummy
         CHUNK_SIZE = getattr(settings, 'MESSAGE_CHUNK_SIZE', '400')
         while (True):
             for db in DBS:
