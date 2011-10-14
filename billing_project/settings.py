@@ -12,6 +12,7 @@ filedir = os.path.dirname(__file__)
 sys.path.append(os.path.join(filedir))
 sys.path.append(os.path.join(filedir, 'rapidsms', 'lib'))
 sys.path.append(os.path.join(filedir, 'rapidsms_httprouter_src'))
+sys.path.append(os.path.join(filedir, 'billing_src'))
 
 # -------------------------------------------------------------------- #
 #                          MAIN CONFIGURATION                          #
@@ -72,9 +73,7 @@ INSTALLED_APPS = [
     "django_nose",
     "django_digest",
     "djtables",
-    "uganda_common",
     "rapidsms",
-    "mptt",
     "uni_form",
     "django_extensions",
 
@@ -92,6 +91,7 @@ INSTALLED_APPS = [
     "rapidsms.contrib.locations",
     "rapidsms.contrib.locations.nested",
     "rapidsms_httprouter",
+    "billing",
 ]
 
 SMS_APPS = [
