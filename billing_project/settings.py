@@ -24,31 +24,36 @@ TIME_ZONE = "Africa/Kampala"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'dummy'
+        'NAME': 'dummy',
+        'CAN_SEND_URL': 'localhost:8000/router/can_send/%(message_id)s/',
     },
     'status160': {
         'ENGINE' : 'django.db.backends.postgresql_psycopg2',
         'NAME': 'status160',
         'USER': 'postgres',
         'HOST': 'dbserver',
+        'CAN_SEND_URL': 'localhost:8000/router/can_send/%(message_id)s/',
     },
     'ureport': {
         'ENGINE' : 'django.db.backends.postgresql_psycopg2',
         'NAME': 'ureport',
         'USER': 'postgres',
         'HOST': 'dbserver',
+        'CAN_SEND_URL': 'localhost:8000/router/can_send/%(message_id)s/',
     },
     'emis': {
         'ENGINE' : 'django.db.backends.postgresql_psycopg2',
         'NAME': 'emis',
         'USER': 'postgres',
         'HOST': 'dbserver',
+        'CAN_SEND_URL': 'localhost:8000/router/can_send/%(message_id)s/',
     },
     'mtrack': {
         'ENGINE' : 'django.db.backends.postgresql_psycopg2',
         'NAME': 'mtrack',
         'USER': 'postgres',
         'HOST': 'dbserver',
+        'CAN_SEND_URL': 'localhost:8000/router/can_send/%(message_id)s/',
     }
 }
 

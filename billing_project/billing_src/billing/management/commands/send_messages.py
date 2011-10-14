@@ -6,8 +6,9 @@ from django.conf import settings
 from django.db import transaction
 from urllib import quote_plus
 from urllib2 import urlopen
+from rapidsms.log.mixin import LoggerMixin
 
-class Command(BaseCommand):
+class Command(BaseCommand, LoggerMixin):
 
     help = """sends messages from all project DBs
     """
@@ -67,7 +68,7 @@ class Command(BaseCommand):
 
 
     def send_backend_chunk(self, pks, backend_name):
-        msgs = Message.objects.filter(pk__in=pks)
+        msgs = Message.objects.using(self.db).filter(pk__in=pks)
         try:
             url = self.build_send_url(backend_name, ' '.join(msgs.values_list('connection__identity', flat=True)), msg.text)
             status_code = self.fetch_url(url)
@@ -76,30 +77,30 @@ class Command(BaseCommand):
             # 2xx value means things went okay
             if int(status_code / 100) == 2:
                 self.info("SMS%s SENT" % pks)
-                msgs.update(status='S')
+                msgs.update(status='S', using=self.db)
             else:
                 self.error("SMS%s Message not sent, got status: %s .. queued for later delivery." % (pks, status_code))
-                msgs.update(status='Q')
+                msgs.update(status='Q', using=self.db)
 
         except Exception as e:
             self.error("SMS%s Message not sent: %s .. queued for later delivery." % (pks, str(e)))
-            msgs.update(status='Q')
+            msgs.update(status='Q', using=self.db)
 
 
     def send_all(self, to_send):
         pks = []
         if len(to_send):
-            backend_name = to_send[0].backend.name
+            backend_name = to_send[0].connection.backend.name
             for msg in to_send:
-                if backend_name != msg.backend.name:
+                if backend_name != msg.connection.backend.name:
                     # send all of the same backend
                     self.send_backend_chunk(pks, backend_name)
                     # reset the loop status variables to build the next chunk of messages with the same backend
-                    backend_name = msg.backend.name
+                    backend_name = msg.connection.backend.name
                     pks = [msg.pk]
                 else:
                     pks.append(msg.pk)
-            self.send_backend_chunk(pks)
+            self.send_backend_chunk(pks, backend_name)
 
 
     def handle_sending(self, to_process):
@@ -131,19 +132,27 @@ class Command(BaseCommand):
         while (True):
             for db in DBS:
                 transaction.enter_transaction_management(using=db)
+                self.db = db
+                print "finding message batches using %s" % db
                 to_process = MessageBatch.objects.using(db).filter(status='P')
+                print "checked messagebatch"
                 if to_process.count():
                     batch = to_process[0]
                     to_process = batch.messages.using(db).filter(direction='O',
                                   status__in=['P', 'Q']).order_by('priority', 'status', 'connection__backend__name')[:CHUNK_SIZE]
                     if to_process.count():
+                        print "found some messages in batch %d" % batch.pk
                         self.send_all(to_process)
                     else:
+                        print "setting batch %d to done" % batch.pk
                         batch.status = 'S'
                         batch.save()
                         continue
                 else:
+                    print "finding individual messages to send"
                     to_process = Message.objects.using(db).filter(direction='O',
-                                      status__in=['P', 'Q']).order_by('priority', 'status')[0]
-                    self.send_all([to_process])
+                                      status__in=['P', 'Q']).order_by('priority', 'status')
+                    if len(to_process):
+                        print "sending one"
+                        self.send_all([to_process[0]])
                 transaction.commit(using=db)
