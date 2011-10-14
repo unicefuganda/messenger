@@ -104,24 +104,29 @@ class Command(BaseCommand, LoggerMixin):
 
 
     def handle_sending(self, to_process):
-        try:
-            if len(to_process):
-                to_send = []
-                for outgoing_message in to_process:
+        if len(to_process):
+            to_send = []
+            for outgoing_message in to_process:
+                try:
                     # process the outgoing phases for this message
-                    send_msg = get_router().process_outgoing_phases(outgoing_message)
-
+                    url = self.db['CAN_SEND_URL'] % outgoing_message.pk
+                    response = urlopen(url, timeout=15)
                     # if it wasn't cancelled, send it off
-                    if send_msg:
+                    if response.getcode() == 200:
                         to_send.append(outgoing_message)
                         self.send_message(outgoing_message)
-                    else:
+                    elif response.getcode() == 403:
                         outgoing_message.status = 'C'
                         outgoing_message.save()
+                except:
+                    import traceback
+                    traceback.print_exc()
+                    continue
+            try:
                 self.send_all(to_send)
-        except:
-            import traceback
-            traceback.print_exc()
+            except:
+                import traceback
+                traceback.print_exc()
 
 
 
