@@ -125,14 +125,16 @@ class Command(BaseCommand):
 
 
     def handle(self, **options):
+        DBS = settings.DATABASES.keys()
+        CHUNK_SIZE = getattr(settings, 'MESSAGE_CHUNK_SIZE', '400')
         while (True):
-            for db in settings.DATABASES.keys():
+            for db in DBS:
                 transaction.enter_transaction_management(using=db)
                 to_process = MessageBatch.objects.using(db).filter(status='P')
                 if to_process.count():
                     batch = to_process[0]
                     to_process = batch.messages.using(db).filter(direction='O',
-                                  status__in=['P', 'Q']).order_by('priority', 'status', 'connection__backend__name')[:100]
+                                  status__in=['P', 'Q']).order_by('priority', 'status', 'connection__backend__name')[:CHUNK_SIZE]
                     if to_process.count():
                         self.send_all(to_process)
                     else:

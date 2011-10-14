@@ -17,27 +17,10 @@ sys.path.append(os.path.join(filedir, 'rapidsms_httprouter_src'))
 #                          MAIN CONFIGURATION                          #
 # -------------------------------------------------------------------- #
 TIME_ZONE = "Africa/Kampala"
-ACTIVATION_CODE = 'start'
-OPT_IN_WORDS = ['join']
-OPT_OUT_WORDS = ['quit']
-OPT_OUT_CONFIRMATION = 'You have just quit.If you want to re-register,or register to a new location,please send the word JOIN to 6767.'
-# map bounding box
-MIN_LON = '29.55322265625'
-MAX_LON = '33.92578125'
-MIN_LAT = '-1.0326589311777759'
-MAX_LAT = '4.280680030820496'
-# map categorized color pallete
-CATEGORY_COLORS = ['#AA4643', '#4572A7', '#89A54E', '#80699B', '#3D96AE', '#DB843D', '#92A8CD', '#A47D7C', '#B5CA92']
 
 # you should configure your database here before doing any real work.
 # see: http://docs.djangoproject.com/en/dev/ref/settings/#databases
 DATABASES = {
-    'default': {
-        'ENGINE' : 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'billing',
-        'USER': 'postgres',
-        'HOST': 'dbserver',
-    },
     'status160': {
         'ENGINE' : 'django.db.backends.postgresql_psycopg2',
         'NAME': 'status160',
@@ -108,26 +91,10 @@ INSTALLED_APPS = [
     "rapidsms.contrib.registration",
     "rapidsms.contrib.locations",
     "rapidsms.contrib.locations.nested",
-    "eav",
-    "healthmodels",
-    "rapidsms_xforms",
-    "auth",
     "rapidsms_httprouter",
-    "poll",
-    "ureport",
-    "cvs",
-    "generic",
-    "contact",
-    "unregister",
-    "ussd",
-    "script",
 ]
 
 SMS_APPS = [
-    "cvs",
-    "script",
-    "poll",
-    "rapidsms_xforms",
 ]
 
 
@@ -135,16 +102,9 @@ SMS_APPS = [
 # tabbed navigation. when adding an app to INSTALLED_APPS, you may wish
 # to add it here, also, to expose it in the rapidsms ui.
 RAPIDSMS_TABS = [
-    ("cvs.views.stats.index", "Stats"),
-    ("cvs-map", "Map"),
-    ("cvs-contact", "VHTs"),
-    ("cvs-messagelog", "Message Log"),
-    ("cvs-training-contact", "Trainees"),
-    ("cvs-training-messagelog", "Training Messages"),
 ]
 
 AUTHENTICATED_TABS = [
-    ("polls", "Polls")
 ]
 
 
@@ -196,8 +156,6 @@ TEMPLATE_CONTEXT_PROCESSORS = [
     "django.core.context_processors.i18n",
     "django.core.context_processors.media",
     "django.core.context_processors.request",
-    "generic.context_processors.map_params",
-    "uganda_common.context_processors.authtabs",
 ]
 
 MIDDLEWARE_CLASSES = (
@@ -257,5 +215,5 @@ if 'test' in sys.argv:
         DATABASES[db_name]['ENGINE'] = 'django.db.backends.sqlite3'
         DATABASES[db_name]['NAME'] = os.path.join(
             tempfile.gettempdir(),
-            "%s.cvs.test.sqlite3" % db_name)
+            "%s.billing.test.sqlite3" % db_name)
 
