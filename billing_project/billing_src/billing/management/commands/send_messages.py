@@ -70,21 +70,21 @@ class Command(BaseCommand, LoggerMixin):
     def send_backend_chunk(self, pks, backend_name):
         msgs = Message.objects.using(self.db).filter(pk__in=pks)
         try:
-            url = self.build_send_url(backend_name, ' '.join(msgs.values_list('connection__identity', flat=True)), msg.text)
+            url = self.build_send_url(backend_name, ' '.join(msgs.values_list('connection__identity', flat=True)), msgs[0].text)
             status_code = self.fetch_url(url)
 
             # kannel likes to send 202 responses, really any
             # 2xx value means things went okay
             if int(status_code / 100) == 2:
-                self.info("SMS%s SENT" % pks)
-                msgs.update(status='S', using=self.db)
+                print "SMS%s SENT"
+                msgs.update(status='S')
             else:
-                self.error("SMS%s Message not sent, got status: %s .. queued for later delivery." % (pks, status_code))
-                msgs.update(status='Q', using=self.db)
+                print "SMS%s Message not sent, got status: %s .. queued for later delivery." % (pks, status_code)
+                msgs.update(status='Q')
 
         except Exception as e:
-            self.error("SMS%s Message not sent: %s .. queued for later delivery." % (pks, str(e)))
-            msgs.update(status='Q', using=self.db)
+            print "SMS%s Message not sent: %s .. queued for later delivery." % (pks, str(e))
+            msgs.update(status='Q')
 
 
     def send_all(self, to_send):
@@ -109,15 +109,17 @@ class Command(BaseCommand, LoggerMixin):
             for outgoing_message in to_process:
                 try:
                     # process the outgoing phases for this message
-                    url = self.db['CAN_SEND_URL'] % outgoing_message.pk
+                    url = settings.DATABASES[self.db]['CAN_SEND_URL'] % {'message_id':outgoing_message.pk}
+                    print "checking send with %s" % url
                     response = urlopen(url, timeout=15)
                     # if it wasn't cancelled, send it off
                     if response.getcode() == 200:
+                        print "can send"
                         to_send.append(outgoing_message)
-                        self.send_message(outgoing_message)
                     elif response.getcode() == 403:
+                        print "cant send"
                         outgoing_message.status = 'C'
-                        outgoing_message.save()
+                        outgoing_message.save(using=self.db)
                 except:
                     import traceback
                     traceback.print_exc()
@@ -147,7 +149,7 @@ class Command(BaseCommand, LoggerMixin):
                                   status__in=['P', 'Q']).order_by('priority', 'status', 'connection__backend__name')[:CHUNK_SIZE]
                     if to_process.count():
                         print "found some messages in batch %d" % batch.pk
-                        self.send_all(to_process)
+                        self.handle_sending(to_process)
                     else:
                         print "setting batch %d to done" % batch.pk
                         batch.status = 'S'
@@ -159,5 +161,5 @@ class Command(BaseCommand, LoggerMixin):
                                       status__in=['P', 'Q']).order_by('priority', 'status')
                     if len(to_process):
                         print "sending one"
-                        self.send_all([to_process[0]])
+                        self.handle_sending([to_process[0]])
                 transaction.commit(using=db)
