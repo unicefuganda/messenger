@@ -15,7 +15,7 @@ from django.core.mail import send_mail
 class Command(BaseCommand, LoggerMixin):
     help = "monitor the kannel smsc links  and send a email notification if one of them is down "
 
-    def get_status(self, recepients):
+    def get_status(self):
         KANNEL_HOST = getattr(settings, 'KANNEL_HOST', 'http://localhost:13000/status.xml')
         recipients = getattr(settings, 'ADMINS', None)
         if recipients:
