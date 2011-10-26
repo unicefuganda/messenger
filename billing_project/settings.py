@@ -13,6 +13,7 @@ sys.path.append(os.path.join(filedir))
 sys.path.append(os.path.join(filedir, 'rapidsms', 'lib'))
 sys.path.append(os.path.join(filedir, 'rapidsms_httprouter_src'))
 sys.path.append(os.path.join(filedir, 'billing_src'))
+sys.path.append(os.path.join(filedir, 'kannel_src'))
 
 # -------------------------------------------------------------------- #
 #                          MAIN CONFIGURATION                          #
@@ -25,35 +26,30 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': 'dummy',
-        'CAN_SEND_URL': 'localhost:8000/router/can_send/%(message_id)s/',
     },
     'status160': {
         'ENGINE' : 'django.db.backends.postgresql_psycopg2',
         'NAME': 'status160',
         'USER': 'postgres',
         'HOST': 'dbserver',
-        'CAN_SEND_URL': 'localhost:8000/router/can_send/%(message_id)s/',
     },
     'ureport': {
         'ENGINE' : 'django.db.backends.postgresql_psycopg2',
         'NAME': 'ureport',
         'USER': 'postgres',
         'HOST': 'dbserver',
-        'CAN_SEND_URL': 'localhost:8000/router/can_send/%(message_id)s/',
     },
     'emis': {
         'ENGINE' : 'django.db.backends.postgresql_psycopg2',
         'NAME': 'emis',
         'USER': 'postgres',
         'HOST': 'dbserver',
-        'CAN_SEND_URL': 'localhost:8000/router/can_send/%(message_id)s/',
     },
     'mtrack': {
         'ENGINE' : 'django.db.backends.postgresql_psycopg2',
         'NAME': 'mtrack',
         'USER': 'postgres',
         'HOST': 'dbserver',
-        'CAN_SEND_URL': 'localhost:8000/router/can_send/%(message_id)s/',
     }
 }
 
@@ -101,6 +97,7 @@ INSTALLED_APPS = [
     "rapidsms.contrib.locations.nested",
     "rapidsms_httprouter",
     "billing",
+    "kannel",
 ]
 
 SMS_APPS = [
