@@ -13,17 +13,7 @@ urlpatterns = patterns('',
     url(r'^$', direct_to_template, {'template':'mtrack/dashboard.html'}, name='rapidsms-dashboard'),
     url('^accounts/login', 'rapidsms.views.login'),
     url('^accounts/logout', 'rapidsms.views.logout'),
-
-    # RapidSMS contrib app URLs
-    (r'^ajax/', include('rapidsms.contrib.ajax.urls')),
-    (r'^export/', include('rapidsms.contrib.export.urls')),
-    (r'^httptester/', include('rapidsms.contrib.httptester.urls')),
-    (r'^locations/', include('rapidsms.contrib.locations.urls')),
-    (r'^messagelog/', include('rapidsms.contrib.messagelog.urls')),
-    (r'^messaging/', include('rapidsms.contrib.messaging.urls')),
-    (r'^registration/', include('auth.urls')),
-    (r'^scheduler/', include('rapidsms.contrib.scheduler.urls')),
-    (r'^polls/', include('poll.urls')),
+    (r'^billing/', 'billing.views.summary'),
 ) + router_urls
 
 if settings.DEBUG:
@@ -34,8 +24,4 @@ if settings.DEBUG:
         (r'^', include('rapidsms.urls.static_media')),
     )
 
-import sys
-if not 'test' in sys.argv:
-    from rapidsms_httprouter.router import get_router
-    get_router(start_workers=True)
 
