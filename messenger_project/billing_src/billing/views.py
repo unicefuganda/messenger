@@ -11,6 +11,7 @@ def summary(request):
     messages = SortedDict()
     d = datetime.datetime.now()
     years = range(2010, d.year + 1)
+    start_date = datetime.datetime(2010, 1, 1)
     months = range(1, 13)
     backends = []
     for db in settings.DATABASES.keys():
@@ -36,6 +37,7 @@ def summary(request):
         if db == 'default':
             continue
         app_messages = Message.objects.using(db)\
+                .filter(date__gte=start_date)\
                 .exclude(status__in=['L', 'P', 'Q', 'C'])\
                 .exclude(connection__backend__name='console')\
                 .extra({'year':'extract (year from rapidsms_httprouter_message.date)', \
