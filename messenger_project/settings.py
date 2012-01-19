@@ -45,6 +45,12 @@ DATABASES = {
         'USER': 'postgres',
         'HOST': 'dbserver',
     },
+    'edtrac': {
+        'ENGINE' : 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'edtrac',
+        'USER': 'postgres',
+        'HOST': 'dbserver',
+    },
     'mtrack': {
         'ENGINE' : 'django.db.backends.postgresql_psycopg2',
         'NAME': 'mtrack',
