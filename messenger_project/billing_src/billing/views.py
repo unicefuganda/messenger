@@ -19,7 +19,7 @@ def summary(request):
     for db in dbs:
         if db == 'default':
             continue
-        bs = list(Backend.objects.using(db).exclude(name='console').order_by('name').values_list('name', flat=True))
+        bs = list(Backend.objects.using(db).exclude(name='console').exclude(connection__backend__name__icontains='modem').order_by('name').values_list('name', flat=True))
         for b in bs:
             if b not in backends:
                 backends.append(b)
@@ -42,6 +42,7 @@ def summary(request):
                 .filter(date__gte=start_date)\
                 .exclude(status__in=['L', 'P', 'Q', 'C'])\
                 .exclude(connection__backend__name='console')\
+                .exclude(connection__backend__name='console').exclude(connection__backend__name__icontains='modem')\
                 .extra({'year':'extract (year from rapidsms_httprouter_message.date)', \
                          'month':'extract (month from rapidsms_httprouter_message.date)'})\
                 .values('year', 'month', 'connection__backend__name', 'direction')\
