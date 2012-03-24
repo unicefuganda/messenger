@@ -9,12 +9,14 @@ from django.template import RequestContext
 
 def summary(request):
     messages = SortedDict()
+    prjs = SortedDict()
     d = datetime.datetime.now()
     years = range(2010, d.year + 1)
     start_date = datetime.datetime(2010, 1, 1)
     months = range(1, 13)
     backends = []
-    for db in settings.DATABASES.keys():
+    dbs = settings.DATABASES.keys()
+    for db in dbs:
         if db == 'default':
             continue
         bs = list(Backend.objects.using(db).exclude(name='console').order_by('name').values_list('name', flat=True))
@@ -33,7 +35,7 @@ def summary(request):
                 for d in directions:
                     messages[y][m][b][d] = 0
 
-    for db in settings.DATABASES.keys():
+    for db in dbs:
         if db == 'default':
             continue
         app_messages = Message.objects.using(db)\
@@ -51,8 +53,11 @@ def summary(request):
             b = dct['connection__backend__name']
             d = dct['direction']
             t = dct['total']
-            messages[y][m][b][d] += t
+            prjs[db] = t
+            messages[y][m][b][d] = prjs
+            
+    dbs.remove('default')
     return render_to_response(
         "billing/summary.html",
-        { 'messages': messages, 'backends':backends}, context_instance=RequestContext(request))
+        { 'messages': messages, 'backends':backends, 'db_count':len(dbs)}, context_instance=RequestContext(request))
 

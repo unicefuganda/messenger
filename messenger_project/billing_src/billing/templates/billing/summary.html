@@ -5,15 +5,15 @@
 <td>Year</td>
 <td>Month</td>
 {% for backend in backends %}
-    <td colspan="2">{{ backend }}</td>
+    <td colspan="{{ 2|add:db_count }}">{{ backend }}</td>
 {% endfor %}
 </tr>
 
 <tr>
 <td colspan = "2">&nbsp;</td>
 {% for backend in backends %}
-	<td>Incoming</td>
-	<td>Outgoing</td>
+	<td colspan="{{ db_count }}">Incoming</td>
+	<td colspan="{{ db_count }}">Outgoing</td>
 {% endfor %}
 </tr>
 
@@ -24,7 +24,9 @@
             <td>{{ month }}</td>
 	        {% for backend, backenddict in monthdict.items %}
 	            {% for direction, total in backenddict.items %}
-	                <td>{{ total }}</td>
+	               {% for proj, t in total.items %}
+	                   <td>{{ proj }}<br /><br />{{ t }}</td>
+	               {% endfor %}
 	            {% endfor %}    
 	        {% endfor %}
         </tr>
