@@ -54,8 +54,8 @@ def summary(request):
             b = dct['connection__backend__name']
             d = dct['direction']
             t = dct['total']
-            prjs[db] = t
-            messages[y][m][b][d] = prjs
+#            prjs[db] = t
+            messages[y][m][b][d] += t 
             
     dbs.remove('default')
     return render_to_response(

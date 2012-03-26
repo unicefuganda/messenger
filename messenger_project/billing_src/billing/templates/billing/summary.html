@@ -24,9 +24,7 @@
             <td>{{ month }}</td>
 	        {% for backend, backenddict in monthdict.items %}
 	            {% for direction, total in backenddict.items %}
-	               {% for proj, t in total.items %}
-	                   <td>{{ proj }}<br /><br />{{ t }}</td>
-	               {% endfor %}
+	               <td>{{ total }}</td>
 	            {% endfor %}    
 	        {% endfor %}
         </tr>
