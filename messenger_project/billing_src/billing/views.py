@@ -93,7 +93,7 @@ def detail(request, **kwargs):
     for d, direction in directions.items():
         app_messages = Message.objects.using(kwargs.get('project'))\
                     .filter(date__gte=start_date)\
-                    .filter(direction='I')\
+                    .filter(direction=d)\
                     .exclude(status__in=['L', 'P', 'Q', 'C'])\
                     .exclude(connection__backend__name='console')\
                     .exclude(connection__backend__name='console').exclude(connection__backend__name__icontains='modem')\
@@ -108,7 +108,7 @@ def detail(request, **kwargs):
             d = dct['direction']
             t = dct['total']
             messages[y][m][d] += t
-                 
+    print messages             
     return render_to_response(
         "billing/detail.html",
         {
