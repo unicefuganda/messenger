@@ -81,8 +81,8 @@ def detail(request, **kwargs):
     years = range(2010, d.year + 1)
     start_date = datetime.datetime(2010, 1, 1)
     months = range(1, 13)
-    backend = PROJECT_BACKENDS[kwargs.get('backend')]
-    
+    backend = kwargs.get('backend')
+
     for y in years:
         messages[y] = SortedDict()
         for m in months:
@@ -94,9 +94,8 @@ def detail(request, **kwargs):
         app_messages = Message.objects.using(kwargs.get('project'))\
                     .filter(date__gte=start_date)\
                     .filter(direction=d)\
+                    .filter(connection__backend__name=backend)\
                     .exclude(status__in=['L', 'P', 'Q', 'C'])\
-                    .exclude(connection__backend__name='console')\
-                    .exclude(connection__backend__name='console').exclude(connection__backend__name__icontains='modem')\
                     .extra({'year':'extract (year from rapidsms_httprouter_message.date)', \
                              'month':'extract (month from rapidsms_httprouter_message.date)'})\
                     .values('year', 'month', 'direction')\
@@ -108,7 +107,7 @@ def detail(request, **kwargs):
             d = dct['direction']
             t = dct['total']
             messages[y][m][d] += t
-    print messages             
+                      
     return render_to_response(
         "billing/detail.html",
         {
