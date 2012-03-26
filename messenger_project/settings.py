@@ -31,31 +31,25 @@ DATABASES = {
         'ENGINE' : 'django.db.backends.postgresql_psycopg2',
         'NAME': 'status160',
         'USER': 'postgres',
-        'HOST': 'localhost',
+        'HOST': 'dbserver',
     },
     'ureport': {
         'ENGINE' : 'django.db.backends.postgresql_psycopg2',
         'NAME': 'ureport',
         'USER': 'postgres',
-        'HOST': 'localhost',
-    },
-    'emis': {
-        'ENGINE' : 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'emis',
-        'USER': 'postgres',
-        'HOST': 'localhost',
+        'HOST': 'dbserver',
     },
     'edtrac': {
         'ENGINE' : 'django.db.backends.postgresql_psycopg2',
         'NAME': 'edtrac',
         'USER': 'postgres',
-        'HOST': 'localhost',
+        'HOST': 'dbserver',
     },
     'mtrack': {
         'ENGINE' : 'django.db.backends.postgresql_psycopg2',
         'NAME': 'mtrack',
         'USER': 'postgres',
-        'HOST': 'localhost',
+        'HOST': 'dbserver',
     }
 }
 
