@@ -13,7 +13,7 @@ urlpatterns = patterns('',
     url(r'^$', direct_to_template, {'template':'mtrack/dashboard.html'}, name='rapidsms-dashboard'),
     url('^accounts/login', 'rapidsms.views.login'),
     url('^accounts/logout', 'rapidsms.views.logout'),
-    (r'^billing/', 'billing.views.summary'),
+    (r'^billing/', include('billing.urls')),
 ) + router_urls
 
 if settings.DEBUG:

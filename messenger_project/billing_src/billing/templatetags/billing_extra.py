@@ -1,0 +1,19 @@
+from django import template
+import calendar
+
+register = template.Library()
+
+@register.filter
+def month_name(month_number):
+    return calendar.month_name[month_number]
+
+@register.filter
+def add_to_list(input, property):
+    if type(input) == list:
+        return input + [property]
+    else:
+        return [property]
+    
+@register.filter
+def extract_value(input, property):
+    return input[property[0]][property[1]][property[2]]

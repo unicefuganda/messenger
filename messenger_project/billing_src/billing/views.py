@@ -7,6 +7,14 @@ import datetime
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
+PROJECT_BACKENDS = {
+    'dmark':['ureport', 'mtrack'],
+    'yo6200':['edtrac'],
+    'yo8200':['mtrack'],
+    'utl':['ureport', 'mtrack', 'edtrac'],
+    'zain':['ureport', 'mtrack', 'edtrac'],               
+    }
+
 def summary(request):
     messages = SortedDict()
     prjs = SortedDict()
@@ -60,5 +68,54 @@ def summary(request):
     dbs.remove('default')
     return render_to_response(
         "billing/summary.html",
-        { 'messages': messages, 'backends':backends, 'db_count':len(dbs)}, context_instance=RequestContext(request))
+        { 'messages':messages, 
+         'backends':backends, 
+         'db_count':len(dbs),
+         'pbackends': PROJECT_BACKENDS,
+         }, context_instance=RequestContext(request))
+    
+def detail(request, **kwargs):
+    directions = {'I':'Incoming', 'O':'Outgoing'}
+    messages = SortedDict()
+    d = datetime.datetime.now()
+    years = range(2010, d.year + 1)
+    start_date = datetime.datetime(2010, 1, 1)
+    months = range(1, 13)
+    backend = PROJECT_BACKENDS[kwargs.get('backend')]
+    
+    for y in years:
+        messages[y] = SortedDict()
+        for m in months:
+            messages[y][m] = SortedDict()
+            for d, direction in directions.items():
+                messages[y][m][d] = 0
+    
+    for d, direction in directions.items():
+        app_messages = Message.objects.using(kwargs.get('project'))\
+                    .filter(date__gte=start_date)\
+                    .filter(direction='I')\
+                    .exclude(status__in=['L', 'P', 'Q', 'C'])\
+                    .exclude(connection__backend__name='console')\
+                    .exclude(connection__backend__name='console').exclude(connection__backend__name__icontains='modem')\
+                    .extra({'year':'extract (year from rapidsms_httprouter_message.date)', \
+                             'month':'extract (month from rapidsms_httprouter_message.date)'})\
+                    .values('year', 'month', 'direction')\
+                    .annotate(total=Count('id'))\
+                    .extra(order_by=['year', 'month', 'direction'])
+        for dct in app_messages:
+            y = int(dct['year'])
+            m = int(dct['month'])
+            d = dct['direction']
+            t = dct['total']
+            messages[y][m][d] += t
+                 
+    return render_to_response(
+        "billing/detail.html",
+        {
+         'years':years,
+         'months':months,
+         'directions':directions,
+         'messages':messages,
+         'pbackends': PROJECT_BACKENDS,
+         }, context_instance=RequestContext(request))
 

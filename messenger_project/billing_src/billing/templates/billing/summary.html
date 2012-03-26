@@ -1,5 +1,21 @@
 {% extends "layout.html" %}
 {% block content %}
+<p>
+    <table>
+    <tr>
+        {% for backend, prjs in pbackends.items %}
+           <td colspan="{{ prjs|length }}" align="center">{{ backend }}</td>
+        {% endfor %}
+    </tr>
+    <tr>
+        {% for b, prjs in pbackends.items %}
+            {% for prj in prjs %}
+               <td><a href='{% url billing-detail b prj %}'>{{ prj }}</a></td>
+            {% endfor %}
+        {% endfor %}
+    </tr>
+    </table>
+</p>
 <table>
 <tr>
 <td>Year</td>
