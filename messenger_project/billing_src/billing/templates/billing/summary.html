@@ -21,15 +21,15 @@
 <td>Year</td>
 <td>Month</td>
 {% for backend in backends %}
-    <td colspan="{{ 2|add:db_count }}">{{ backend }}</td>
+    <td colspan="2">{{ backend }}</td>
 {% endfor %}
 </tr>
 
 <tr>
 <td colspan = "2">&nbsp;</td>
 {% for backend in backends %}
-	<td colspan="{{ db_count }}">Incoming</td>
-	<td colspan="{{ db_count }}">Outgoing</td>
+	<td>Incoming</td>
+	<td>Outgoing</td>
 {% endfor %}
 </tr>
 
