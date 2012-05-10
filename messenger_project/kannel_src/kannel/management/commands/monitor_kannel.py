@@ -48,11 +48,11 @@ class Command(BaseCommand, LoggerMixin):
                     " more info: %s" % KANNEL_HOST
 
                     send_mail(subject, message, settings.EMAIL_HOST_USER,
-                    recepients, fail_silently=False)
+                    recipients, fail_silently=False)
         else:
             subject = "Kannel id down"
             send_mail(subject, subject, settings.EMAIL_HOST_USER,
-                    recepients, fail_silently=False)
+                    recipients, fail_silently=False)
 
     def handle(self, *args, **options):
         self.get_status()
