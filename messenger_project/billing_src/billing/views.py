@@ -27,7 +27,7 @@ def summary(request):
     for db in dbs:
         if db == 'default':
             continue
-        bs = list(Backend.objects.using(db).exclude(name='console').exclude(connection__backend__name__icontains='modem').order_by('name').values_list('name', flat=True))
+        bs = list(Backend.objects.using(db).exclude(name='console').exclude(name='TestBackend').exclude(connection__backend__name__icontains='modem').order_by('name').values_list('name', flat=True))
         for b in bs:
             if b not in backends:
                 backends.append(b)
@@ -50,7 +50,65 @@ def summary(request):
                 .filter(date__gte=start_date)\
                 .exclude(status__in=['L', 'P', 'Q', 'C'])\
                 .exclude(connection__backend__name='console')\
-                .exclude(connection__backend__name='console').exclude(connection__backend__name__icontains='modem')\
+                .exclude(connection__backend__name='console').exclude(name='TestBackend').exclude(connection__backend__name__icontains='modem')\
+                .extra({'year':'extract (year from rapidsms_httprouter_message.date)', \
+                         'month':'extract (month from rapidsms_httprouter_message.date)'})\
+                .values('year', 'month', 'connection__backend__name', 'direction')\
+                .annotate(total=Count('id'))\
+                .extra(order_by=['year', 'month', 'connection__backend__name', 'direction'])
+        for dct in app_messages:
+            y = int(dct['year'])
+            m = int(dct['month'])
+            b = dct['connection__backend__name']
+            d = dct['direction']
+            t = dct['total']
+#            prjs[db] = t
+            messages[y][m][b][d] += t 
+            
+    dbs.remove('default')
+    return render_to_response(
+        "billing/summary.html",
+        { 'messages':messages, 
+         'backends':backends, 
+         'db_count':len(dbs),
+         'pbackends': PROJECT_BACKENDS,
+         }, context_instance=RequestContext(request))
+    
+def utl_summary(request):
+    messages = SortedDict()
+    prjs = SortedDict()
+    d = datetime.datetime.now()
+    years = range(2010, d.year + 1)
+    start_date = datetime.datetime(2010, 1, 1)
+    months = range(1, 13)
+    backends = []
+    dbs = settings.DATABASES.keys()
+    for db in dbs:
+        if db == 'default':
+            continue
+        bs = list(Backend.objects.using(db).filter(name='utl'))
+        for b in bs:
+            if b not in backends:
+                backends.append(b)
+    backends = sorted(backends)
+
+    directions = ['I', 'O']
+    for y in years:
+        messages[y] = SortedDict()
+        for m in months:
+            messages[y][m] = SortedDict()
+            for b in backends:
+                messages[y][m][b] = SortedDict()
+                for d in directions:
+                    messages[y][m][b][d] = 0
+
+    for db in dbs:
+        if db == 'default':
+            continue
+        app_messages = Message.objects.using(db)\
+                .filter(date__gte=start_date)\
+                .exclude(status__in=['L', 'P', 'Q', 'C'])\
+                .filter(connection__identity__startswith='25671')\
                 .extra({'year':'extract (year from rapidsms_httprouter_message.date)', \
                          'month':'extract (month from rapidsms_httprouter_message.date)'})\
                 .values('year', 'month', 'connection__backend__name', 'direction')\
