@@ -50,7 +50,7 @@ def summary(request):
                 .filter(date__gte=start_date)\
                 .exclude(status__in=['L', 'P', 'Q', 'C'])\
                 .exclude(connection__backend__name='console')\
-                .exclude(connection__backend__name='console').exclude(name='TestBackend').exclude(connection__backend__name__icontains='modem')\
+                .exclude(connection__backend__name='console').exclude(connection__backend__name='TestBackend').exclude(connection__backend__name__icontains='modem')\
                 .extra({'year':'extract (year from rapidsms_httprouter_message.date)', \
                          'month':'extract (month from rapidsms_httprouter_message.date)'})\
                 .values('year', 'month', 'connection__backend__name', 'direction')\
