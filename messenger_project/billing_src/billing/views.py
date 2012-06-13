@@ -86,7 +86,7 @@ def utl_summary(request):
     for db in dbs:
         if db == 'default':
             continue
-        bs = list(Backend.objects.using(db).filter(name='utl'))
+        bs = list(Backend.objects.using(db).filter(name='utl').values_list('name', flat=True))
         for b in bs:
             if b not in backends:
                 backends.append(b)
@@ -99,8 +99,8 @@ def utl_summary(request):
             messages[y][m] = SortedDict()
             for b in backends:
                 messages[y][m][b] = SortedDict()
-                for d in directions:
-                    messages[y][m][b][d] = 0
+            for d in directions:
+                messages[y][m][b][d] = 0
 
     for db in dbs:
         if db == 'default':
@@ -109,23 +109,25 @@ def utl_summary(request):
                 .filter(date__gte=start_date)\
                 .exclude(status__in=['L', 'P', 'Q', 'C'])\
                 .filter(connection__identity__startswith='25671')\
+                .exclude(connection__backend__name__startswith='yo')\
                 .extra({'year':'extract (year from rapidsms_httprouter_message.date)', \
                          'month':'extract (month from rapidsms_httprouter_message.date)'})\
                 .values('year', 'month', 'connection__backend__name', 'direction')\
                 .annotate(total=Count('id'))\
                 .extra(order_by=['year', 'month', 'connection__backend__name', 'direction'])
+        
         for dct in app_messages:
             y = int(dct['year'])
             m = int(dct['month'])
-            b = dct['connection__backend__name']
+            b = u'utl'
             d = dct['direction']
             t = dct['total']
 #            prjs[db] = t
             messages[y][m][b][d] += t 
-            
+    print messages        
     dbs.remove('default')
     return render_to_response(
-        "billing/summary.html",
+        "billing/utl_summary.html",
         { 'messages':messages, 
          'backends':backends, 
          'db_count':len(dbs),
