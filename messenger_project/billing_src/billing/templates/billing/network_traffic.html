@@ -1,0 +1,46 @@
+{% extends "layout.html" %}
+{% load billing_extra %}
+{% block content %}
+<p>
+    <table>
+    <tr>
+            {% for prj in projects %}
+               <td><a href='{% url network-traffic prj %}'>{{ prj }}</a></td>
+            {% endfor %}
+    </tr>
+    </table>
+</p>
+<table>
+<tr>
+    <td>Year</td>
+    <td colspan="12">Month/Traffic</td>
+</tr>
+{% for year in years %}
+    <tr>
+        <td valign="top">{{ year }}</td>
+        <td><table>
+            <tr>
+                <td>&nbsp;</td>
+                {% for month in months %}
+                    <td>{{ month|month_name }}</td>
+                {% endfor %}
+            </tr>
+            {% for d, direction in directions.items %}
+                <tr>
+                    <td>{{ direction }}</td>
+                    {% for month in months %}
+                        {% with xlist=year|add_to_list:year %}
+                            {% with xlist=xlist|add_to_list:month %}
+                                {% with xlist=xlist|add_to_list:d %}
+                                    <td>{{ messages|extract_values:xlist|linebreaks }}</td>
+                                {% endwith %}
+                            {% endwith %}
+                        {% endwith %}
+                    {% endfor %}
+                </tr>
+            {% endfor %}     
+        </table></td>
+    </tr>
+{% endfor %}
+</table>
+{% endblock %}

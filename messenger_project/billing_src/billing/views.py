@@ -14,6 +14,66 @@ PROJECT_BACKENDS = {
     'utl':['ureport', 'mtrack', 'edtrac'],
     'zain':['ureport', 'mtrack', 'edtrac'],               
     }
+    
+PROJECTS = ["ureport", "edutrac", "mtrack"]
+
+NETWORK_PREFIXES = (
+    ('mtn', '25677'),
+    ('warid', '25670'),
+    ('airtel', '25675'),
+    ('orange', '25679'),
+    ('utl', '25671'),
+) 
+
+def network_traffic(request, **kwargs):
+    directions = {'I':'Incoming', 'O':'Outgoing'}
+    messages = SortedDict()
+    d = datetime.datetime.now()
+    years = range(2012, d.year + 1)
+    start_date = datetime.datetime(2012, 1, 1)
+    months = range(1, d.month+1)
+    # proj = kwargs.get('proj')
+
+    for y in years:
+        messages[y] = SortedDict()
+        for m in months:
+            messages[y][m] = SortedDict()
+            for d, direction in directions.items():
+                messages[y][m][d] = SortedDict()
+                for n, p in NETWORK_PREFIXES:
+                    messages[y][m][d][n] = 0
+    
+    for d, direction in directions.items():
+        for network_name, prefix in NETWORK_PREFIXES:
+            app_messages = Message.objects.using(kwargs.get('project'))\
+                    .filter(date__gte=start_date)\
+                    .filter(direction=d)\
+                    .filter(connection__identity__startswith=prefix)\
+                    .exclude(status__in=['L', 'P', 'Q', 'C'])\
+                    .extra({'year':'extract (year from rapidsms_httprouter_message.date)', \
+                             'month':'extract (month from rapidsms_httprouter_message.date)'})\
+                    .values('year', 'month', 'direction')\
+                    .annotate(total=Count('id'))\
+                    .extra(order_by=['year', 'month', 'direction'])
+            for dct in app_messages:
+                y = int(dct['year'])
+                m = int(dct['month'])
+                d = dct['direction']
+                n = network_name
+                t = dct['total']
+                messages[y][m][d][n] += t
+                      
+    return render_to_response(
+        "billing/network_traffic.html",
+        {
+         'years':years,
+         'months':months,
+         'directions':directions,
+         'messages':messages,
+         'networks': NETWORK_PREFIXES,
+         'projects': PROJECTS,
+         }, context_instance=RequestContext(request))
+
 
 def summary(request):
     messages = SortedDict()

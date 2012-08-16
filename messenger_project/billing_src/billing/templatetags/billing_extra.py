@@ -17,3 +17,12 @@ def add_to_list(input, property):
 @register.filter
 def extract_value(input, property):
     return input[property[0]][property[1]][property[2]]
+    
+@register.filter
+def extract_values(input, property):
+    values = input[property[0]][property[1]][property[2]]
+    toret = ''
+    str_list = []
+    for n, v in values.items():
+        str_list.append('%s:%d' % (n, v))
+    return '\n'.join(str_list)
