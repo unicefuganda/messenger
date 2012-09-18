@@ -42,19 +42,32 @@ def network_traffic(request, **kwargs):
                 messages[y][m][d] = SortedDict()
                 for n, p in NETWORK_PREFIXES:
                     messages[y][m][d][n] = 0
-    
+                    
     for d, direction in directions.items():
         for network_name, prefix in NETWORK_PREFIXES:
-            app_messages = Message.objects.using(kwargs.get('project'))\
-                    .filter(date__gte=start_date)\
-                    .filter(direction=d)\
-                    .filter(connection__identity__startswith=prefix)\
-                    .exclude(status__in=['L', 'P', 'Q', 'C'])\
-                    .extra({'year':'extract (year from rapidsms_httprouter_message.date)', \
-                             'month':'extract (month from rapidsms_httprouter_message.date)'})\
-                    .values('year', 'month', 'direction')\
-                    .annotate(total=Count('id'))\
-                    .extra(order_by=['year', 'month', 'direction'])
+            if kwargs.get('project') == 'mtrack':
+                app_messages = Message.objects.using(kwargs.get('project'))\
+                            .exclude(connection__backend__name__startswith='yo')\
+                            .filter(date__gte=start_date)\
+                            .filter(direction=d)\
+                            .filter(connection__identity__startswith=prefix)\
+                            .exclude(status__in=['L', 'P', 'Q', 'C'])\
+                            .extra({'year':'extract (year from rapidsms_httprouter_message.date)', \
+                                     'month':'extract (month from rapidsms_httprouter_message.date)'})\
+                            .values('year', 'month', 'direction')\
+                            .annotate(total=Count('id'))\
+                            .extra(order_by=['year', 'month', 'direction'])
+            else:
+                app_messages = Message.objects.using(kwargs.get('project'))\
+                            .filter(date__gte=start_date)\
+                            .filter(direction=d)\
+                            .filter(connection__identity__startswith=prefix)\
+                            .exclude(status__in=['L', 'P', 'Q', 'C'])\
+                            .extra({'year':'extract (year from rapidsms_httprouter_message.date)', \
+                                     'month':'extract (month from rapidsms_httprouter_message.date)'})\
+                            .values('year', 'month', 'direction')\
+                            .annotate(total=Count('id'))\
+                            .extra(order_by=['year', 'month', 'direction'])
             for dct in app_messages:
                 y = int(dct['year'])
                 m = int(dct['month'])
