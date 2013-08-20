@@ -40,6 +40,8 @@ class Command(BaseCommand, LoggerMixin):
             for smsc in smsc_list:
                 if smsc.getElementsByTagName('status')[0].childNodes[0].data.split(" ")[0] != "online":
                     smsc_name = smsc.getElementsByTagName('id')[0].childNodes[0].data
+                    if smsc_name in getattr(settings, 'UNMONITORED_SMSCS', ['fake']):
+                        continue
                     if smsc_name in others:
                         recipients += others[smsc_name]
 

@@ -53,6 +53,10 @@ DATABASES = {
     }
 }
 
+# DBS_TO_IGNORE is an array of keys from settings.DATABASES that the
+# httprouter_src will ignore when checking for messages to send out.
+DBS_TO_IGNORE = []
+
 # the rapidsms backend configuration is designed to resemble django's
 # database configuration, as a nested dict of (name, configuration).
 #
