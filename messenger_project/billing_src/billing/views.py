@@ -8,11 +8,12 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 
 PROJECT_BACKENDS = {
-    'dmark':['ureport', 'mtrack'],
-    'yo6200':['edtrac'],
-    'yo8200':['mtrack'],
-    'utl':['ureport', 'mtrack', 'edtrac'],
-    'zain':['ureport', 'mtrack', 'edtrac'],               
+    # 'dmark':['ureport', 'mtrack'],
+    # 'yo6200':['edtrac'],
+    # 'yo8200':['mtrack'],
+    # 'utl':['ureport', 'mtrack', 'edtrac'],
+    # 'zain':['ureport', 'mtrack', 'edtrac'],
+    'yo': ['ureport', 'mtrack'],
     }
     
 PROJECTS = ["ureport", "edutrac", "mtrack"]
