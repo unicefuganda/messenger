@@ -1,5 +1,6 @@
 import json
 from django.conf import settings
+from django.http import HttpResponse
 from django.utils.datastructures import SortedDict
 from django.db.models import Count
 from rapidsms.models import Backend
@@ -15,8 +16,8 @@ PROJECT_BACKENDS = {
     # 'utl':['ureport', 'mtrack', 'edtrac'],
     # 'zain':['ureport', 'mtrack', 'edtrac'],
     'yo': ['ureport', 'mtrack'],
-    }
-    
+}
+
 PROJECTS = ["ureport", "edutrac", "mtrack"]
 
 NETWORK_PREFIXES = (
@@ -25,15 +26,16 @@ NETWORK_PREFIXES = (
     ('airtel', '25675'),
     ('orange', '25679'),
     ('utl', '25671'),
-) 
+)
+
 
 def network_traffic(request, **kwargs):
-    directions = {'I':'Incoming', 'O':'Outgoing'}
+    directions = {'I': 'Incoming', 'O': 'Outgoing'}
     messages = SortedDict()
     d = datetime.datetime.now()
     years = range(2012, d.year + 1)
     start_date = datetime.datetime(2012, 1, 1)
-    months = range(1, d.month+1)
+    months = range(1, d.month + 1)
     # proj = kwargs.get('proj')
 
     for y in years:
@@ -44,32 +46,32 @@ def network_traffic(request, **kwargs):
                 messages[y][m][d] = SortedDict()
                 for n, p in NETWORK_PREFIXES:
                     messages[y][m][d][n] = 0
-                    
+
     for d, direction in directions.items():
         for network_name, prefix in NETWORK_PREFIXES:
             if kwargs.get('project') == 'mtrack':
-                app_messages = Message.objects.using(kwargs.get('project'))\
-                            .exclude(connection__backend__name__startswith='yo')\
-                            .filter(date__gte=start_date)\
-                            .filter(direction=d)\
-                            .filter(connection__identity__startswith=prefix)\
-                            .exclude(status__in=['L', 'P', 'Q', 'C'])\
-                            .extra({'year':'extract (year from rapidsms_httprouter_message.date)', \
-                                     'month':'extract (month from rapidsms_httprouter_message.date)'})\
-                            .values('year', 'month', 'direction')\
-                            .annotate(total=Count('id'))\
-                            .extra(order_by=['year', 'month', 'direction'])
+                app_messages = Message.objects.using(kwargs.get('project')) \
+                    .exclude(connection__backend__name__startswith='yo') \
+                    .filter(date__gte=start_date) \
+                    .filter(direction=d) \
+                    .filter(connection__identity__startswith=prefix) \
+                    .exclude(status__in=['L', 'P', 'Q', 'C']) \
+                    .extra({'year': 'extract (year from rapidsms_httprouter_message.date)', \
+                            'month': 'extract (month from rapidsms_httprouter_message.date)'}) \
+                    .values('year', 'month', 'direction') \
+                    .annotate(total=Count('id')) \
+                    .extra(order_by=['year', 'month', 'direction'])
             else:
-                app_messages = Message.objects.using(kwargs.get('project'))\
-                            .filter(date__gte=start_date)\
-                            .filter(direction=d)\
-                            .filter(connection__identity__startswith=prefix)\
-                            .exclude(status__in=['L', 'P', 'Q', 'C'])\
-                            .extra({'year':'extract (year from rapidsms_httprouter_message.date)', \
-                                     'month':'extract (month from rapidsms_httprouter_message.date)'})\
-                            .values('year', 'month', 'direction')\
-                            .annotate(total=Count('id'))\
-                            .extra(order_by=['year', 'month', 'direction'])
+                app_messages = Message.objects.using(kwargs.get('project')) \
+                    .filter(date__gte=start_date) \
+                    .filter(direction=d) \
+                    .filter(connection__identity__startswith=prefix) \
+                    .exclude(status__in=['L', 'P', 'Q', 'C']) \
+                    .extra({'year': 'extract (year from rapidsms_httprouter_message.date)', \
+                            'month': 'extract (month from rapidsms_httprouter_message.date)'}) \
+                    .values('year', 'month', 'direction') \
+                    .annotate(total=Count('id')) \
+                    .extra(order_by=['year', 'month', 'direction'])
             for dct in app_messages:
                 y = int(dct['year'])
                 m = int(dct['month'])
@@ -77,17 +79,17 @@ def network_traffic(request, **kwargs):
                 n = network_name
                 t = dct['total']
                 messages[y][m][d][n] += t
-                      
+
     return render_to_response(
         "billing/network_traffic.html",
         {
-         'years':years,
-         'months':months,
-         'directions':directions,
-         'messages':messages,
-         'networks': NETWORK_PREFIXES,
-         'projects': PROJECTS,
-         }, context_instance=RequestContext(request))
+            'years': years,
+            'months': months,
+            'directions': directions,
+            'messages': messages,
+            'networks': NETWORK_PREFIXES,
+            'projects': PROJECTS,
+        }, context_instance=RequestContext(request))
 
 
 def summary(request):
@@ -102,7 +104,8 @@ def summary(request):
     for db in dbs:
         if db == 'default':
             continue
-        bs = list(Backend.objects.using(db).exclude(name='console').exclude(name='TestBackend').exclude(connection__backend__name__icontains='modem').order_by('name').values_list('name', flat=True))
+        bs = list(Backend.objects.using(db).exclude(name='console').exclude(name='TestBackend').exclude(
+            connection__backend__name__icontains='modem').order_by('name').values_list('name', flat=True))
         for b in bs:
             if b not in backends:
                 backends.append(b)
@@ -121,34 +124,36 @@ def summary(request):
     for db in dbs:
         if db == 'default':
             continue
-        app_messages = Message.objects.using(db)\
-                .filter(date__gte=start_date)\
-                .exclude(status__in=['L', 'P', 'Q', 'C'])\
-                .exclude(connection__backend__name='console')\
-                .exclude(connection__backend__name='console').exclude(connection__backend__name='TestBackend').exclude(connection__backend__name__icontains='modem')\
-                .extra({'year':'extract (year from rapidsms_httprouter_message.date)', \
-                         'month':'extract (month from rapidsms_httprouter_message.date)'})\
-                .values('year', 'month', 'connection__backend__name', 'direction')\
-                .annotate(total=Count('id'))\
-                .extra(order_by=['year', 'month', 'connection__backend__name', 'direction'])
+        app_messages = Message.objects.using(db) \
+            .filter(date__gte=start_date) \
+            .exclude(status__in=['L', 'P', 'Q', 'C']) \
+            .exclude(connection__backend__name='console') \
+            .exclude(connection__backend__name='console').exclude(connection__backend__name='TestBackend').exclude(
+            connection__backend__name__icontains='modem') \
+            .extra({'year': 'extract (year from rapidsms_httprouter_message.date)', \
+                    'month': 'extract (month from rapidsms_httprouter_message.date)'}) \
+            .values('year', 'month', 'connection__backend__name', 'direction') \
+            .annotate(total=Count('id')) \
+            .extra(order_by=['year', 'month', 'connection__backend__name', 'direction'])
         for dct in app_messages:
             y = int(dct['year'])
             m = int(dct['month'])
             b = dct['connection__backend__name']
             d = dct['direction']
             t = dct['total']
-#            prjs[db] = t
-            messages[y][m][b][d] += t 
-            
+            #            prjs[db] = t
+            messages[y][m][b][d] += t
+
     dbs.remove('default')
     return render_to_response(
         "billing/summary.html",
-        { 'messages':messages, 
-         'backends':backends, 
-         'db_count':len(dbs),
+        {'messages': messages,
+         'backends': backends,
+         'db_count': len(dbs),
          'pbackends': PROJECT_BACKENDS,
-         }, context_instance=RequestContext(request))
-    
+        }, context_instance=RequestContext(request))
+
+
 def utl_summary(request):
     messages = SortedDict()
     prjs = SortedDict()
@@ -180,37 +185,38 @@ def utl_summary(request):
     for db in dbs:
         if db == 'default':
             continue
-        app_messages = Message.objects.using(db)\
-                .filter(date__gte=start_date)\
-                .exclude(status__in=['L', 'P', 'Q', 'C'])\
-                .filter(connection__identity__startswith='25671')\
-                .exclude(connection__backend__name__startswith='yo')\
-                .extra({'year':'extract (year from rapidsms_httprouter_message.date)', \
-                         'month':'extract (month from rapidsms_httprouter_message.date)'})\
-                .values('year', 'month', 'connection__backend__name', 'direction')\
-                .annotate(total=Count('id'))\
-                .extra(order_by=['year', 'month', 'connection__backend__name', 'direction'])
-        
+        app_messages = Message.objects.using(db) \
+            .filter(date__gte=start_date) \
+            .exclude(status__in=['L', 'P', 'Q', 'C']) \
+            .filter(connection__identity__startswith='25671') \
+            .exclude(connection__backend__name__startswith='yo') \
+            .extra({'year': 'extract (year from rapidsms_httprouter_message.date)', \
+                    'month': 'extract (month from rapidsms_httprouter_message.date)'}) \
+            .values('year', 'month', 'connection__backend__name', 'direction') \
+            .annotate(total=Count('id')) \
+            .extra(order_by=['year', 'month', 'connection__backend__name', 'direction'])
+
         for dct in app_messages:
             y = int(dct['year'])
             m = int(dct['month'])
             b = u'utl'
             d = dct['direction']
             t = dct['total']
-#            prjs[db] = t
-            messages[y][m][b][d] += t 
-    print messages        
+            #            prjs[db] = t
+            messages[y][m][b][d] += t
+    print messages
     dbs.remove('default')
     return render_to_response(
         "billing/utl_summary.html",
-        { 'messages':messages, 
-         'backends':backends, 
-         'db_count':len(dbs),
+        {'messages': messages,
+         'backends': backends,
+         'db_count': len(dbs),
          'pbackends': PROJECT_BACKENDS,
-         }, context_instance=RequestContext(request))
-    
+        }, context_instance=RequestContext(request))
+
+
 def detail(request, **kwargs):
-    directions = {'I':'Incoming', 'O':'Outgoing'}
+    directions = {'I': 'Incoming', 'O': 'Outgoing'}
     messages = SortedDict()
     d = datetime.datetime.now()
     years = range(2010, d.year + 1)
@@ -224,34 +230,34 @@ def detail(request, **kwargs):
             messages[y][m] = SortedDict()
             for d, direction in directions.items():
                 messages[y][m][d] = 0
-    
+
     for d, direction in directions.items():
-        app_messages = Message.objects.using(kwargs.get('project'))\
-                    .filter(date__gte=start_date)\
-                    .filter(direction=d)\
-                    .filter(connection__backend__name=backend)\
-                    .exclude(status__in=['L', 'P', 'Q', 'C'])\
-                    .extra({'year':'extract (year from rapidsms_httprouter_message.date)', \
-                             'month':'extract (month from rapidsms_httprouter_message.date)'})\
-                    .values('year', 'month', 'direction')\
-                    .annotate(total=Count('id'))\
-                    .extra(order_by=['year', 'month', 'direction'])
+        app_messages = Message.objects.using(kwargs.get('project')) \
+            .filter(date__gte=start_date) \
+            .filter(direction=d) \
+            .filter(connection__backend__name=backend) \
+            .exclude(status__in=['L', 'P', 'Q', 'C']) \
+            .extra({'year': 'extract (year from rapidsms_httprouter_message.date)', \
+                    'month': 'extract (month from rapidsms_httprouter_message.date)'}) \
+            .values('year', 'month', 'direction') \
+            .annotate(total=Count('id')) \
+            .extra(order_by=['year', 'month', 'direction'])
         for dct in app_messages:
             y = int(dct['year'])
             m = int(dct['month'])
             d = dct['direction']
             t = dct['total']
             messages[y][m][d] += t
-                      
+
     return render_to_response(
         "billing/detail.html",
         {
-         'years':years,
-         'months':months,
-         'directions':directions,
-         'messages':messages,
-         'pbackends': PROJECT_BACKENDS,
-         }, context_instance=RequestContext(request))
+            'years': years,
+            'months': months,
+            'directions': directions,
+            'messages': messages,
+            'pbackends': PROJECT_BACKENDS,
+        }, context_instance=RequestContext(request))
 
 
 def monitor(request):
@@ -262,18 +268,24 @@ def monitor(request):
         que = Message.objects.filter(date__gte=threshold, status='Q')
         return {'incoming': incom.count(), 'outgoing': outg.count(), 'queued': que.count()}
 
-    # incoming = Message.objects.filter(direction='I').count()
-    # outgoing = Message.objects.filter(direction='O', status='S').count()
-    # queued = Message.objects.filter(status='Q').count()
-
     hour = get_counts(1)
     day = get_counts(24)
     d1 = []
     d2 = []
+    dr = []
     for x in reversed(range(1, 13)):
-        d1.append([x*-1, get_counts(x)['incoming']])
-        d2.append([x*-1, get_counts(x)['outgoing']])
-    d1_bar = []
+        d1.append([x * -1, get_counts(x)['incoming']])
+        d2.append([x * -1, get_counts(x)['outgoing']])
+        dr.append([x * -1 / 100, get_counts(x / 100)['incoming']])
     d1 = json.dumps(d1)
     d2 = json.dumps(d2)
+    dr = json.dumps(dr)
     return render_to_response('billing/index.html', locals(), context_instance=RequestContext(request))
+
+
+def new_data(request):
+    dr = [
+        [x * -1 / 100.0,
+         Message.objects.filter(date__gte=(datetime.datetime.now() - datetime.timedelta(hours=x / 100))).count()] for x
+        in range(1, 13)]
+    return HttpResponse(json.dumps(dr), content_type='application/json')

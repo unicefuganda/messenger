@@ -405,28 +405,29 @@ $(function() {
 $(function () {
     // we use an inline data source in the example, usually data would
     // be fetched from a server
-    var data = [], totalPoints = 300;
-    function getRandomData() {
-        if (data.length > 0)
-            data = data.slice(1);
-
-        // do a random walk
-        while (data.length < totalPoints) {
-            var prev = data.length > 0 ? data[data.length - 1] : 50;
-            var y = prev + Math.random() * 10 - 5;
-            if (y < 10)
-                y = 10;
-            if (y > 70)
-                y = 70;
-            data.push(y);
-        }
-
-        // zip the generated y values with the x values
-        var res = [];
-        for (var i = 0; i < data.length; ++i)
-            res.push([i, data[i]])
-        return res;
-    }
+    var data = {{ d1 }};
+{#    function getRandomData() {#}
+{#        if (data.length > 0)#}
+{#            data = data.slice(1);#}
+{##}
+{#        // do a random walk#}
+{#        while (data.length < totalPoints) {#}
+{#            var prev = data.length > 0 ? data[data.length - 1] : 50;#}
+{#            var y = prev + Math.random() * 10 - 5;#}
+{#            if (y < 10)#}
+{#                y = 10;#}
+{#            if (y > 70)#}
+{#                y = 70;#}
+{#            data.push(y);#}
+{#        }#}
+{##}
+{#        // zip the generated y values with the x values#}
+{#        var res = [];#}
+{#        for (var i = 0; i < data.length; ++i)#}
+{#            res.push([i, data[i]])#}
+{#        console.log(res)#}
+{#        return res;#}
+{#    }#}
 
     // setup control widget
     var updateInterval = 100;
@@ -465,10 +466,18 @@ $(function () {
             }
         }
     };
-    var plot = $.plot($("#m-real-chart"), [ getRandomData() ], options);
+    var plot = $.plot($("#m-real-chart"), [ data ], options);
+
+    function get_new_data(){
+        var d = [];
+        $.getJSON('{% url new_data %}', function(data){
+            d = data;
+        });
+        return d;
+    }
 
     function update() {
-        plot.setData([ getRandomData() ]);
+        plot.setData([ get_new_data() ]);
         // since the axes don't change, we don't need to call plot.setupGrid()
         plot.draw();
 
