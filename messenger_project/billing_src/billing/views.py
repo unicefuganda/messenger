@@ -1,3 +1,4 @@
+import json
 from django.conf import settings
 from django.utils.datastructures import SortedDict
 from django.db.models import Count
@@ -252,3 +253,26 @@ def detail(request, **kwargs):
          'pbackends': PROJECT_BACKENDS,
          }, context_instance=RequestContext(request))
 
+
+def monitor(request):
+    def get_counts(hours):
+        threshold = datetime.datetime.now() - datetime.timedelta(hours=hours)
+        incom = Message.objects.filter(date__gte=threshold, direction='I')
+        outg = Message.objects.filter(date__gte=threshold, direction='O', status='S')
+        que = Message.objects.filter(date__gte=threshold, status='Q')
+        return {'incoming': incom.count(), 'outgoing': outg.count(), 'queued': que.count()}
+
+    # incoming = Message.objects.filter(direction='I').count()
+    # outgoing = Message.objects.filter(direction='O', status='S').count()
+    # queued = Message.objects.filter(status='Q').count()
+
+    hour = get_counts(1)
+    day = get_counts(24)
+    d1 = []
+    d2 = []
+    for x in reversed(range(1, 13)):
+        d1.append([x, get_counts(x)['incoming']])
+        d2.append([x, get_counts(x)['outgoing']])
+    d1 = json.dumps(d1)
+    d2 = json.dumps(d2)
+    return render_to_response('billing/index.html', locals(), context_instance=RequestContext(request))
