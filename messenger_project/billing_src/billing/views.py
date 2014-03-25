@@ -271,8 +271,9 @@ def monitor(request):
     d1 = []
     d2 = []
     for x in reversed(range(1, 13)):
-        d1.append([x, get_counts(x)['incoming']])
-        d2.append([x, get_counts(x)['outgoing']])
+        d1.append([x*-1, get_counts(x)['incoming']])
+        d2.append([x*-1, get_counts(x)['outgoing']])
+    d1_bar = []
     d1 = json.dumps(d1)
     d2 = json.dumps(d2)
     return render_to_response('billing/index.html', locals(), context_instance=RequestContext(request))

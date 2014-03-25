@@ -26,3 +26,7 @@ def extract_values(input, property):
     for n, v in values.items():
         str_list.append('%s:%d' % (n, v))
     return '\n'.join(str_list)
+
+@register.filter
+def make_k(value):
+    return value/1000

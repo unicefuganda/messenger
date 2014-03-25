@@ -180,25 +180,26 @@
 
 <div class="knobs text-center">
     <div class="row">
+        {% load billing_extra %}
         <div class="col-md-2 col-sm-6 col-xs-6">
             <!-- Knob item -->
             <div class="knob-item">
                 <!-- Heading -->
-                <h4>Queued Messages</h4>
+                <h4>Queued Messages(x1000)</h4>
                 <!-- Knob circle -->
-                <input type="text" value="{{ day.queued }}" class="knob" data-fgColor="#f75353" data-angleArc="250" data-angleOffset="-125" data-bgColor="#e8e8e8" data-width="110" data-thickness=".1">
+                <input type="text" value="{{ hour.queued|make_k }}" class="knob" data-fgColor="#f75353" data-angleArc="250" data-angleOffset="-125" data-bgColor="#e8e8e8" data-width="110" data-thickness=".1">
             </div>
         </div>
         <div class="col-md-2 col-sm-6 col-xs-6">
             <div class="knob-item">
-                <h4>Incoming Messages</h4>
-                <input type="text" value="{{ day.incoming }}" class="knob" data-fgColor="#32c8de" data-angleArc="250" data-angleOffset="-125" data-bgColor="#e8e8e8" data-width="110" data-thickness=".1">
+                <h4>Incoming Messages(x1000)</h4>
+                <input type="text" value="{{ hour.incoming|make_k }}" class="knob" data-fgColor="#32c8de" data-angleArc="250" data-angleOffset="-125" data-bgColor="#e8e8e8" data-width="110" data-thickness=".1">
             </div>
         </div>
         <div class="col-md-2 col-sm-6 col-xs-6">
             <div class="knob-item">
-                <h4>Outgoing Messages</h4>
-                <input type="text" value="{{ day.outgoing }}" class="knob" data-fgColor="#51d466" data-angleArc="250" data-angleOffset="-125" data-bgColor="#e8e8e8" data-width="110" data-thickness=".1">
+                <h4>Outgoing Messages(x1000)</h4>
+                <input type="text" value="{{ hour.outgoing|make_k }}" class="knob" data-fgColor="#51d466" data-angleArc="250" data-angleOffset="-125" data-bgColor="#e8e8e8" data-width="110" data-thickness=".1">
             </div>
         </div>
         <div class="col-md-4">
@@ -213,7 +214,7 @@
                             <i class="fa fa-user lblue"></i> -->
                             <!-- Heading -->
                             <h6>Incoming</h6>
-                            <h3>load... <span class="fa fa-arrow-circle-down green"></span></h3>
+                            <h3>{{ day.incoming }} <span class="fa fa-arrow-circle-down green"></span></h3>
                         </div>
                     </div>
                     <div class="col-md-4 col-sm-4 col-xs-6">
@@ -223,7 +224,7 @@
                             <i class="fa fa-bar-chart-o lblue"></i> -->
                             <!-- Heading -->
                             <h6>Queued</h6>
-                            <h3>load... <span class="fa fa-arrow-circle-o-left red"></span></h3>
+                            <h3>{{ day.queued }} <span class="fa fa-arrow-circle-o-left red"></span></h3>
                         </div>
                     </div>
                     <div class="col-md-4 col-sm-4 col-xs-12">
@@ -231,7 +232,7 @@
                         <div class="current-status-item">
                             <!-- Heading -->
                             <h6>Outoging</h6>
-                            <h3>load... <span class="fa fa-arrow-circle-up lblue"></span></h3>
+                            <h3>{{ day.outgoing }} <span class="fa fa-arrow-circle-up lblue"></span></h3>
                         </div>
                     </div>
                 </div>
@@ -483,7 +484,7 @@ $(function () {
 
 $(function () {
 
-    var data = [{{ hour.queued }}, {{ hour.incoming }}, {{ hour.outgoing }}];
+    var data = [{{ hour.queued }}, {{ hour.outgoing }}, {{ hour.incoming }}];
 
     var placeholder = $("#m-pie-chart");
 
