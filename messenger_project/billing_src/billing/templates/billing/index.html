@@ -187,19 +187,19 @@
                 <!-- Heading -->
                 <h4>Queued Messages(x1000)</h4>
                 <!-- Knob circle -->
-                <input type="text" value="{{ hour.queued|make_k }}" class="knob" data-fgColor="#f75353" data-angleArc="250" data-angleOffset="-125" data-bgColor="#e8e8e8" data-width="110" data-thickness=".1">
+                <input type="text" value="{{ day.queued|make_k }}" class="knob" data-fgColor="#f75353" data-angleArc="250" data-angleOffset="-125" data-bgColor="#e8e8e8" data-width="110" data-thickness=".1">
             </div>
         </div>
         <div class="col-md-2 col-sm-6 col-xs-6">
             <div class="knob-item">
                 <h4>Incoming Messages(x1000)</h4>
-                <input type="text" value="{{ hour.incoming|make_k }}" class="knob" data-fgColor="#32c8de" data-angleArc="250" data-angleOffset="-125" data-bgColor="#e8e8e8" data-width="110" data-thickness=".1">
+                <input type="text" value="{{ day.incoming|make_k }}" class="knob" data-fgColor="#32c8de" data-angleArc="250" data-angleOffset="-125" data-bgColor="#e8e8e8" data-width="110" data-thickness=".1">
             </div>
         </div>
         <div class="col-md-2 col-sm-6 col-xs-6">
             <div class="knob-item">
                 <h4>Outgoing Messages(x1000)</h4>
-                <input type="text" value="{{ hour.outgoing|make_k }}" class="knob" data-fgColor="#51d466" data-angleArc="250" data-angleOffset="-125" data-bgColor="#e8e8e8" data-width="110" data-thickness=".1">
+                <input type="text" value="{{ day.outgoing|make_k }}" class="knob" data-fgColor="#51d466" data-angleArc="250" data-angleOffset="-125" data-bgColor="#e8e8e8" data-width="110" data-thickness=".1">
             </div>
         </div>
         <div class="col-md-4">
@@ -352,9 +352,9 @@ $(function() {
 
 $(function() {
 
-    var data1 = [{{ d1 }}];
+    var data1 = {{ d1 }};
 
-    var data2 = [{{ d2 }}];
+    var data2 = {{ d2 }};
     var stack = 0,
             bars = true,
             lines = false,
