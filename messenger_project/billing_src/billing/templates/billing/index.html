@@ -351,15 +351,9 @@ $(function() {
 
 $(function() {
 
-    var data1 = [];
-    for (var i = 0; i <= 20; i += 1) {
-        data1.push([i, parseInt(Math.random() * 30)]);
-    }
+    var data1 = [{{ d1 }}];
 
-    var data2 = [];
-    for (var i = 0; i <= 20; i += 1)
-        data2.push([i, parseInt(Math.random() * 30)]);
-
+    var data2 = [{{ d2 }}];
     var stack = 0,
             bars = true,
             lines = false,
