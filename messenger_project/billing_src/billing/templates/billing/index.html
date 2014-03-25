@@ -187,19 +187,19 @@
                 <!-- Heading -->
                 <h4>Queued Messages</h4>
                 <!-- Knob circle -->
-                <input type="text" value="{{ day.queued|make_k }}" readonly class="knob" data-max="2000000" data-fgColor="#f75353" data-angleArc="250" data-angleOffset="-125" data-bgColor="#e8e8e8" data-width="110" data-thickness=".1">
+                <input type="text" value="{{ day.queued}}" readonly class="knob" data-max="2000000" data-fgColor="#f75353" data-angleArc="250" data-angleOffset="-125" data-bgColor="#e8e8e8" data-width="110" data-thickness=".1">
             </div>
         </div>
         <div class="col-md-2 col-sm-6 col-xs-6">
             <div class="knob-item">
                 <h4>Incoming Messages</h4>
-                <input type="text" value="{{ day.incoming|make_k }}" readonly class="knob" data-max="2000000" data-fgColor="#32c8de" data-angleArc="250" data-angleOffset="-125" data-bgColor="#e8e8e8" data-width="110" data-thickness=".1">
+                <input type="text" value="{{ day.incoming }}" readonly class="knob" data-max="2000000" data-fgColor="#32c8de" data-angleArc="250" data-angleOffset="-125" data-bgColor="#e8e8e8" data-width="110" data-thickness=".1">
             </div>
         </div>
         <div class="col-md-2 col-sm-6 col-xs-6">
             <div class="knob-item">
                 <h4>Outgoing Messages</h4>
-                <input type="text" value="{{ day.outgoing|make_k }}" readonly class="knob" data-max="2000000" data-fgColor="#51d466" data-angleArc="250" data-angleOffset="-125" data-bgColor="#e8e8e8" data-width="110" data-thickness=".1">
+                <input type="text" value="{{ day.outgoing }}" readonly class="knob" data-max="2000000" data-fgColor="#51d466" data-angleArc="250" data-angleOffset="-125" data-bgColor="#e8e8e8" data-width="110" data-thickness=".1">
             </div>
         </div>
         <div class="col-md-4">
